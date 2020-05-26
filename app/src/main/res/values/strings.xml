@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">music_play</string>
+    <string name="loop">循環播放</string>
+    <string name="random">隨機播放</string>
+    <string name="single">單曲播放</string>
+    <string name="playing">目前播放 :</string>
+</resources>
