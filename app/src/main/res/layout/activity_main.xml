@@ -44,48 +44,69 @@
             <RadioGroup
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 android:orientation="horizontal">
 
                 <RadioButton
-                    android:id="@+id/radioButton"
+                    android:id="@+id/rdbLoop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/loop"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:checked="false"
+                    android:text="@string/loop" />
 
                 <RadioButton
-                    android:id="@+id/radioButton2"
+                    android:id="@+id/rdbRandom"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/random"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:text="@string/random" />
 
                 <RadioButton
-                    android:id="@+id/radioButton3"
+                    android:id="@+id/rdbSingle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/single"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:text="@string/single" />
             </RadioGroup>
 
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_margin="10dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btPrevious"
+            <ImageButton
+                android:id="@+id/ibPrevious"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
-            <Button
-                android:id="@+id/btPlay"
+                android:layout_height="wrap_content"
+                app:srcCompat="@android:drawable/ic_media_rew" />
+
+            <ImageButton
+                android:id="@+id/ibPlay"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
-            <Button
-                android:id="@+id/btNext"
+                android:layout_height="wrap_content"
+                app:srcCompat="@android:drawable/ic_media_play" />
+
+            <ImageButton
+                android:id="@+id/ibNext"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
+                android:layout_height="wrap_content"
+                app:srcCompat="@android:drawable/ic_media_ff" />
+
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
