@@ -1,27 +1,34 @@
 package com.example.music_play
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.database.Cursor
+import android.graphics.Color
+import android.graphics.Color.blue
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.provider.MediaStore
+import android.os.Handler
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
-import java.time.temporal.TemporalAdjusters.next
 
 class MainActivity : AppCompatActivity() {
     lateinit var mediaPlayer:MediaPlayer
     lateinit var listView: ListView
     lateinit var adapter: FileListAdapter
     lateinit var musicList :MutableList<Fileitem>
+    val handler = Handler()
     var currentMusicIndex :Int = 0
     var pausePosion :Int =0
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,8 +39,10 @@ class MainActivity : AppCompatActivity() {
         adapter  = FileListAdapter(this, musicList )
         listView.adapter = adapter
         mediaPlayer =MediaPlayer()
+
         buttonListener()
         rdbLoop.isChecked = true
+
 
 
 
@@ -45,6 +54,7 @@ class MainActivity : AppCompatActivity() {
         ibPrevious.setOnClickListener(buttonListen)
         listView.setOnItemClickListener(InnerItemOnClick())
         mediaPlayer.setOnCompletionListener(OnCompletionListener())
+        seekBar.setOnSeekBarChangeListener(OnSeekBarChangerListen())
 
     }
 
@@ -62,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         return fileNames
     }
 
-
+    //播放按鈕、前一首、下一首按鈕監聽器
     private inner class InnerOnClickListener :View.OnClickListener{
         override fun onClick(v: View?) {
             if (v != null) {
@@ -86,16 +96,12 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    //listview內項目監聽器
     private inner class InnerItemOnClick :AdapterView.OnItemClickListener{
         override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-            if(currentMusicIndex!=position){
-                currentMusicIndex=position
-                play()
-            }else{
-                pausePosion=0
-                play()
-            }
-
+            pausePosion = 0
+            currentMusicIndex = position
+            play()
         }
     }
 
@@ -105,14 +111,43 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private inner class OnSeekBarChangerListen :SeekBar.OnSeekBarChangeListener{
+        override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+            //SeekBar 進度變更過程觸發，設定進度改變時要做的事
+            //seekBar：使用者滑動的 SeekBar，progress：SeekBar 的進度 ，fromUser：如果是使用者滑動造成進度變動則為 True，若是經 Code 變更進度則為 False
+           if(fromUser){
+               pausePosion = progress
+               mediaPlayer.seekTo(pausePosion)
+           }
+        }
+
+        override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            //在 SeekBar 被使用者觸摸的當下觸發
+        }
+
+        override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            //在使用者手指離開 SeekBar 時當下觸發
+
+        }
+
+    }
+
     private fun play(){
         mediaPlayer.reset()
         mediaPlayer.setDataSource(musicList.get(currentMusicIndex).filePath)
         mediaPlayer.prepare()
+        seekBar.max = mediaPlayer.duration
         mediaPlayer.seekTo(pausePosion)
         mediaPlayer.start()
+
         tvNowpath.text = getString(R.string.playing) + musicList.get(currentMusicIndex).fileName
+
+        var sec = String.format("%02d",mediaPlayer.duration/1000%60)
+        tvAlltime.text = "${mediaPlayer.duration/1000/60} : ${sec}"
+
         ibPlay.setImageResource(android.R.drawable.ic_media_pause)
+        handler.post(task);//立即调用
+
     }
     private fun pause(){
         mediaPlayer.pause()
@@ -164,7 +199,15 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
+    private val task: Runnable = object : Runnable {
+        override fun run() {
+            handler.postDelayed(this,1000.toLong()) //设置延迟时间，此处是5秒
+            seekBar.progress = mediaPlayer.currentPosition
+            var min = mediaPlayer.currentPosition/1000/60
+            var sec =String.format("%02d",mediaPlayer.currentPosition/1000%60)
+            tvNowtime.text = "${min}:${sec}"
+        }
+    }
 
 
     class Fileitem( var fileName: String, var filePath: String)
