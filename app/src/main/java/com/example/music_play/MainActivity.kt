@@ -2,6 +2,7 @@ package com.example.music_play
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Color.blue
 import android.media.MediaPlayer
@@ -16,15 +17,18 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
+import java.util.jar.Manifest
 
 class MainActivity : AppCompatActivity() {
     lateinit var mediaPlayer:MediaPlayer
     lateinit var listView: ListView
     lateinit var adapter: FileListAdapter
     lateinit var musicList :MutableList<Fileitem>
+    val requestNum:Int = 10
     val handler = Handler()
     var currentMusicIndex :Int = 0
     var pausePosion :Int =0
@@ -34,6 +38,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        if(askPermission()){
+            initData()
+        }
+
+    }
+
+    fun initData(){
         musicList= flieList()
         listView = findViewById<ListView>(R.id.file_Listview)
         adapter  = FileListAdapter(this, musicList )
@@ -42,10 +53,37 @@ class MainActivity : AppCompatActivity() {
 
         buttonListener()
         rdbLoop.isChecked = true
+    }
 
 
 
 
+    fun askPermission():Boolean{
+        val read_permission = android.Manifest.permission.READ_EXTERNAL_STORAGE
+        val write_permission = android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+
+        if(ContextCompat.checkSelfPermission(this,read_permission)!= PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this,write_permission)!= PackageManager.PERMISSION_GRANTED ){
+            ActivityCompat.requestPermissions(this, arrayOf(read_permission,write_permission),requestNum)
+            return false
+        }
+
+        return true
+
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when(requestCode){
+            requestNum->{
+                if(ContextCompat.checkSelfPermission(this,android.Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this,android.Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED ){
+                    Toast.makeText(this,"不給權限無法使用喔~",Toast.LENGTH_LONG).show()
+                }else{
+                    initData()
+                }
+            }
+        }
     }
     private fun buttonListener(){
         var buttonListen =InnerOnClickListener()
